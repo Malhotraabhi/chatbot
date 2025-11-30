@@ -1,0 +1,21 @@
+# ===============================
+# Core Python Dependencies
+# Install everything with:
+#    pip install -r requirements.txt
+# =============================== 
+
+python-dotenv==1.0.1
+requests==2.32.3
+langchain==0.2.14
+langchain-community==0.2.12
+langchain-core==0.2.30
+langgraph==0.2.18
+langgraph-checkpoint-sqlite==0.1.4
+langchain-google-genai==1.0.5
+google-generativeai==0.7.0
+faiss-cpu==1.8.0.post1
+pypdf==4.3.1
+duckduckgo-search==6.1.0
+langchain-text-splitters==0.2.4
+streamlit==1.37.1
+typing-extensions==4.12.2
