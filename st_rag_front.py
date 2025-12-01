@@ -43,8 +43,18 @@ if "thread_id" not in st.session_state:
 if "chat_threads" not in st.session_state:
     st.session_state["chat_threads"] = retrieve_all_threads()
 
+if "thread_titles" not in st.session_state:
+    st.session_state['thread_titles'] = {}
+
 if "ingested_docs" not in st.session_state:
     st.session_state["ingested_docs"] = {}
+
+def generate_chat_title(text:str)->str:
+    """create chat title from first user message."""
+    if not text:
+        return "Untitled Text"
+    words = text.split()
+    return " ".join(words[:7]) + ("..." if len(words)>7 else "")
 
 add_thread(st.session_state["thread_id"])
 
@@ -55,7 +65,10 @@ selected_thread = None
 
 # ============================ Sidebar ============================
 st.sidebar.title("LangGraph PDF Chatbot")
-st.sidebar.markdown(f"**Thread ID:** `{thread_key}`")
+title = st.session_state['thread_titles'].get(thread_key , "New Chat")
+# st.sidebar.markdown(f"**Thread ID:** `{thread_key}`")
+st.sidebar.markdown(f"**Chat:** `{title}`")
+
 
 if st.sidebar.button("New Chat", use_container_width=True):
     reset_chat()
@@ -89,7 +102,10 @@ if not threads:
     st.sidebar.write("No past conversations yet.")
 else:
     for thread_id in threads:
-        if st.sidebar.button(str(thread_id), key=f"side-thread-{thread_id}"):
+        key = str(thread_id)
+        title = st.session_state['thread_titles'].get(key, f"Chat {key[:6]}")
+
+        if st.sidebar.button(title, key=f"side-thread-{key}"):
             selected_thread = thread_id
 
 # ============================ Main Layout ========================
@@ -103,6 +119,9 @@ for message in st.session_state["message_history"]:
 user_input = st.chat_input("Ask about your document or use tools")
 
 if user_input:
+    thread_key = str(st.session_state['thread_id'])
+    if thread_key not in st.session_state['thread_titles']:
+        st.session_state["thread_titles"][thread_key]=generate_chat_title(user_input)
     st.session_state["message_history"].append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.text(user_input)
