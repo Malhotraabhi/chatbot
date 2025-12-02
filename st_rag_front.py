@@ -8,6 +8,8 @@ from langgraph_rag_backend import (
     ingest_pdf, 
     retrieve_all_threads,
     thread_document_metadata,
+    get_all_thread_titles,
+    save_thread_title
 )
 
 
@@ -44,7 +46,7 @@ if "chat_threads" not in st.session_state:
     st.session_state["chat_threads"] = retrieve_all_threads()
 
 if "thread_titles" not in st.session_state:
-    st.session_state['thread_titles'] = {}
+    st.session_state['thread_titles'] = get_all_thread_titles()
 
 if "ingested_docs" not in st.session_state:
     st.session_state["ingested_docs"] = {}
@@ -114,14 +116,16 @@ st.title("Multi Utility Chatbot")
 # Chat area
 for message in st.session_state["message_history"]:
     with st.chat_message(message["role"]):
-        st.text(message["content"])
+        st.markdown(message["content"])
 
 user_input = st.chat_input("Ask about your document or use tools")
 
 if user_input:
     thread_key = str(st.session_state['thread_id'])
     if thread_key not in st.session_state['thread_titles']:
-        st.session_state["thread_titles"][thread_key]=generate_chat_title(user_input)
+         title = generate_chat_title(user_input)
+         st.session_state["thread_titles"][thread_key]=title
+         save_thread_title(thread_key,title)
     st.session_state["message_history"].append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.text(user_input)

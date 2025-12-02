@@ -205,6 +205,26 @@ tool_node = ToolNode(tools)
 conn = sqlite3.connect(database="chatbot.db", check_same_thread=False)
 checkpointer = SqliteSaver(conn=conn)
 
+with conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS thread_titles (
+            thread_id TEXT PRIMARY KEY,
+            title TEXT
+        )
+    """)
+
+def save_thread_title(thread_id:str,title:str):
+    with conn:
+        conn.execute(
+            "INSERT OR REPLACE INTO thread_titles (thread_id, title) VALUES (?, ?)",
+            (str(thread_id),title),
+        )
+
+def get_all_thread_titles()->dict[str,str]:
+    cur = conn.cursor()
+    cur.execute("SELECT thread_id , title FROM thread_titles")
+    return {row[0]:row[1] for row in cur.fetchall()}
+
 # -------------------
 # 7. Graph
 # -------------------
